@@ -70,6 +70,7 @@ func (row ResourceTableRow) NamespacedName() types.NamespacedName {
 	var namespacedName types.NamespacedName
 	if row.Namespace == "" {
 		namespacedName, _ = NamespacedNameFrom(row.Name)
+		return namespacedName
 	}
 	namespacedName, _ = NamespacedNameFrom(row.Namespace + "/" + row.Name)
 	return namespacedName

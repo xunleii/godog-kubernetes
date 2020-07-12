@@ -158,10 +158,7 @@ func (ctx *FeatureContext) Delete(
 		return nil, err
 	}
 
-	if ctx.gc != nil {
-		err = ctx.gc(ctx, obj)
-	}
-	return obj, err
+	return obj, ctx.callGC(obj)
 }
 
 // DeleteWithoutGC deletes a Kubernetes resource based on the given

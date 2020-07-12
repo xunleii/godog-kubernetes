@@ -47,7 +47,7 @@ func RemoveResourceLabel(ctx *FeatureContext, s ScenarioContext) {
 			}
 
 			patch := fmt.Sprintf(`[{"op":"remove","path":"/metadata/labels/%s"}]`, helpers.SanitizeJsonPatch(label))
-			return ctx.Patch(groupVersionKind, namespacedName, types.MergePatchType, []byte(patch))
+			return ctx.Patch(groupVersionKind, namespacedName, types.JSONPatchType, []byte(patch))
 		},
 	)
 }
@@ -69,7 +69,7 @@ func UpdateResourceLabel(ctx *FeatureContext, s ScenarioContext) {
 			}
 
 			patch := fmt.Sprintf(`[{"op":"replace","path":"/metadata/labels/%s","value":"%s"}]`, helpers.SanitizeJsonPatch(label), value)
-			return ctx.Patch(groupVersionKind, namespacedName, types.MergePatchType, []byte(patch))
+			return ctx.Patch(groupVersionKind, namespacedName, types.JSONPatchType, []byte(patch))
 		},
 	)
 }
@@ -113,7 +113,7 @@ func RemoveResourceAnnotation(ctx *FeatureContext, s ScenarioContext) {
 			}
 
 			patch := fmt.Sprintf(`[{"op":"remove","path":"/metadata/annotations/%s"}]`, helpers.SanitizeJsonPatch(annotation))
-			return ctx.Patch(groupVersionKind, namespacedName, types.MergePatchType, []byte(patch))
+			return ctx.Patch(groupVersionKind, namespacedName, types.JSONPatchType, []byte(patch))
 		},
 	)
 }
@@ -135,7 +135,7 @@ func UpdateResourceAnnotation(ctx *FeatureContext, s ScenarioContext) {
 			}
 
 			patch := fmt.Sprintf(`[{"op":"replace","path":"/metadata/annotations/%s","value":"%s"}]`, helpers.SanitizeJsonPatch(annotation), value)
-			return ctx.Patch(groupVersionKind, namespacedName, types.MergePatchType, []byte(patch))
+			return ctx.Patch(groupVersionKind, namespacedName, types.JSONPatchType, []byte(patch))
 		},
 	)
 }

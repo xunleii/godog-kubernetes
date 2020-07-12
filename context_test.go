@@ -2,12 +2,18 @@ package kubernetes_ctx_test
 
 import (
 	"context"
+	"flag"
+	"os"
 	"testing"
 
+	"github.com/cucumber/godog"
+	"github.com/cucumber/godog/colors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	"kubernetes_ctx"
@@ -28,7 +34,7 @@ func TestNewFeatureContext(t *testing.T) {
 	assert.NotNil(t, ctx)
 
 	assert.Len(t, scenarioCtx.beforeScenarioList, 1)
-	assert.Len(t, scenarioCtx.stepList, 0) // NOTE: Do not forget to update this value
+	assert.Len(t, scenarioCtx.stepList, 33) // NOTE: Do not forget to update this value
 }
 
 func TestNewEmptyFeatureContext(t *testing.T) {
@@ -132,4 +138,64 @@ func TestFeatureContext_OnBeforeScenarioInit(t *testing.T) {
 	assert.Equal(t, scheme, ctx.Scheme())
 	assert.Equal(t, goctx, ctx.GoContext())
 	assert.NotNil(t, ctx.GarbageCollector())
+}
+
+// TestMain allows us to use GoDog tests with the go test framework.
+func TestMain(m *testing.M) {
+	opts := godog.Options{
+		Output: colors.Colored(os.Stdout),
+	}
+
+	godog.BindFlags("godog.", flag.CommandLine, &opts)
+	flag.Parse()
+	opts.Paths = flag.Args()
+
+	status := godog.TestSuite{
+		Name: "kubernetes_ctx",
+		ScenarioInitializer: func(scenarioContext *godog.ScenarioContext) {
+			ctx, _ := kubernetes_ctx.NewFeatureContext(scenarioContext, kubernetes_ctx.WithFakeRuntimeClient())
+			scenarioContext.BeforeScenario(func(sc *godog.Scenario) {
+				// create default namespace
+				_ = ctx.Create(schema.GroupVersionKind{Version: "v1", Kind: "Namespace"}, types.NamespacedName{Name: "default"}, &unstructured.Unstructured{})
+				// create kube-public namespace
+				_ = ctx.Create(schema.GroupVersionKind{Version: "v1", Kind: "Namespace"}, types.NamespacedName{Name: "kube-public"}, &unstructured.Unstructured{})
+				// create kube-system namespace
+				_ = ctx.Create(
+					schema.GroupVersionKind{Version: "v1", Kind: "Namespace"},
+					types.NamespacedName{Name: "kube-system"},
+					&unstructured.Unstructured{
+						Object: map[string]interface{}{
+							"metadata": map[string]interface{}{
+								"annotations": map[string]string{"key": "value"},
+								"labels":      map[string]string{"key": "value"},
+							},
+						},
+					},
+				)
+
+				// create service default/default
+				_ = ctx.Create(schema.GroupVersionKind{Version: "v1", Kind: "Service"}, types.NamespacedName{Namespace: "default", Name: "default"}, &unstructured.Unstructured{})
+				// create service default/Kubernetes
+				_ = ctx.Create(
+					schema.GroupVersionKind{Version: "v1", Kind: "Service"},
+					types.NamespacedName{Namespace: "default", Name: "kubernetes"},
+					&unstructured.Unstructured{
+						Object: map[string]interface{}{
+							"metadata": map[string]interface{}{
+								"annotations": map[string]string{"key": "value"},
+								"labels":      map[string]string{"key": "value"},
+							},
+							"spec": map[string]interface{}{"type": "ClusterIP", "clusterIP": "None"},
+						},
+					},
+				)
+			})
+		},
+		Options: &opts,
+	}.Run()
+
+	if st := m.Run(); st > status {
+		status = st
+	}
+	os.Exit(status)
 }

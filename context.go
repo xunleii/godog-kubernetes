@@ -50,6 +50,44 @@ func NewFeatureContext(s ScenarioContext, opts ...FeatureContextOption) (*Featur
 		return nil, err
 	}
 
+	CreateSingleResource(ctx, s)
+	CreateSingleResourceWith(ctx, s)
+	CreateSingleResourceFrom(ctx, s)
+	CreateMultiResources(ctx, s)
+
+	ResourceExists(ctx, s)
+	ResourceNotExists(ctx, s)
+	ResourceIsSimilarTo(ctx, s)
+	ResourceIsNotSimilarTo(ctx, s)
+	ResourceIsEqualTo(ctx, s)
+	ResourceIsNotEqualTo(ctx, s)
+	ResourceHasField(ctx, s)
+	ResourceDoesntHaveField(ctx, s)
+	ResourceHasFieldEqual(ctx, s)
+	ResourceHasFieldNotEqual(ctx, s)
+	ResourceHasLabel(ctx, s)
+	ResourceDoesntHaveLabel(ctx, s)
+	ResourceHasLabelEqual(ctx, s)
+	ResourceHasLabelNotEqual(ctx, s)
+	ResourceHasAnnotation(ctx, s)
+	ResourceDoesntHaveAnnotation(ctx, s)
+	ResourceHasAnnotationEqual(ctx, s)
+	ResourceHasAnnotationNotEqual(ctx, s)
+
+	CountResources(ctx, s)
+	CountNamespacedResources(ctx, s)
+
+	PatchResourceWith(ctx, s)
+	LabelizeResource(ctx, s)
+	RemoveResourceLabel(ctx, s)
+	UpdateResourceLabel(ctx, s)
+	AnnotateResource(ctx, s)
+	RemoveResourceAnnotation(ctx, s)
+	UpdateResourceAnnotation(ctx, s)
+
+	RemoveResource(ctx, s)
+	RemoveMultiResource(ctx, s)
+
 	return ctx, nil
 }
 

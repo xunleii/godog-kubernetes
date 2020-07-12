@@ -72,7 +72,7 @@ func ResourceHasFieldEqual(ctx *FeatureContext, s ScenarioContext) {
 // It validates the fact that the specific resource field is different than the given value.
 func ResourceHasFieldNotEqual(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
-		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' has '(`+RxFieldPath+`)!=(.*)'$`,
+		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' doesn't have '(`+RxFieldPath+`)=(.*)'$`,
 		func(groupVersionKindStr, name, field, value string) (err error) {
 			rval, exists, err := getResourceField(ctx, groupVersionKindStr, name, field)
 			switch {
@@ -175,7 +175,7 @@ func ResourceHasLabelEqual(ctx *FeatureContext, s ScenarioContext) {
 // It validates the fact that the specific resource label doesn't have the given value.
 func ResourceHasLabelNotEqual(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
-		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' has label '(`+RxFieldPath+`)!=(.*)'$`,
+		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' doesn't have label '(`+RxFieldPath+`)=(.*)'$`,
 		func(groupVersionKindStr, name, label, value string) (err error) {
 			rval, exists, err := getResourceLabel(ctx, groupVersionKindStr, name, label)
 			switch {
@@ -280,7 +280,7 @@ func ResourceHasAnnotationEqual(ctx *FeatureContext, s ScenarioContext) {
 // It validates the fact that the specific resource annotation doesn't have the given value.
 func ResourceHasAnnotationNotEqual(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
-		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' has annotation '(`+RxFieldPath+`)!=(.*)'$`,
+		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' doesn't have annotation '(`+RxFieldPath+`)=(.*)'$`,
 		func(groupVersionKindStr, name, annotation, value string) (err error) {
 			rval, exists, err := getResourceAnnotation(ctx, groupVersionKindStr, name, annotation)
 			switch {
@@ -297,7 +297,7 @@ func ResourceHasAnnotationNotEqual(ctx *FeatureContext, s ScenarioContext) {
 }
 
 // getResourceAnnotation returns the resource annotation value and if it exists.
-func getResourceAnnotation(ctx *FeatureContextqa, groupVersionKindStr, name, annotation string) (string, bool, error) {
+func getResourceAnnotation(ctx *FeatureContext, groupVersionKindStr, name, annotation string) (string, bool, error) {
 	groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
 	if err != nil {
 		return "", false, err

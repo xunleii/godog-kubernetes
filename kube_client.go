@@ -138,14 +138,12 @@ func (ctx *FeatureContext) Patch(
 	pt types.PatchType,
 	data []byte,
 ) error {
-	obj := unstructured.Unstructured{}
-	obj.SetGroupVersionKind(groupVersionKind)
-	err := ctx.client.Get(ctx.ctx, namespacedName, &obj)
+	obj, err := ctx.get(groupVersionKind, namespacedName)
 	if err != nil {
 		return err
 	}
 
-	return ctx.client.Patch(ctx.ctx, &obj, client.RawPatch(pt, data))
+	return ctx.client.Patch(ctx.ctx, obj, client.RawPatch(pt, data))
 }
 
 // Delete deletes a Kubernetes resource based on the given APIVersion/Kind

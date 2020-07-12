@@ -71,30 +71,15 @@ func ResourceIsSimilarTo(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' is similar to '(`+RxNamespacedName+`)'$`,
 		func(groupVersionKindStr, lname, rname string) (err error) {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
-			if err != nil {
-				return err
-			}
-			lNamespacedName, err := helpers.NamespacedNameFrom(lname)
-			if err != nil {
-				return err
-			}
-			rNamespacedName, err := helpers.NamespacedNameFrom(rname)
+			lobj, err := getWithoutMetadata(ctx, groupVersionKindStr, lname)
 			if err != nil {
 				return err
 			}
 
-			lobj, err := ctx.Get(groupVersionKind, lNamespacedName)
+			robj, err := getWithoutMetadata(ctx, groupVersionKindStr, rname)
 			if err != nil {
 				return err
 			}
-			delete(lobj.Object, "metadata")
-
-			robj, err := ctx.Get(groupVersionKind, rNamespacedName)
-			if err != nil {
-				return err
-			}
-			delete(robj.Object, "metadata")
 
 			diff, err := diffObjects(lobj, robj)
 			switch {
@@ -117,30 +102,15 @@ func ResourceIsNotSimilarTo(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' is not similar to '(`+RxNamespacedName+`)'$`,
 		func(groupVersionKindStr, lname, rname string) (err error) {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
-			if err != nil {
-				return err
-			}
-			lNamespacedName, err := helpers.NamespacedNameFrom(lname)
-			if err != nil {
-				return err
-			}
-			rNamespacedName, err := helpers.NamespacedNameFrom(rname)
+			lobj, err := getWithoutMetadata(ctx, groupVersionKindStr, lname)
 			if err != nil {
 				return err
 			}
 
-			lobj, err := ctx.Get(groupVersionKind, lNamespacedName)
+			robj, err := getWithoutMetadata(ctx, groupVersionKindStr, rname)
 			if err != nil {
 				return err
 			}
-			delete(lobj.Object, "metadata")
-
-			robj, err := ctx.Get(groupVersionKind, rNamespacedName)
-			if err != nil {
-				return err
-			}
-			delete(robj.Object, "metadata")
 
 			diff := gojsondiff.New().CompareObjects(lobj.Object, robj.Object)
 			if !diff.Modified() {
@@ -149,6 +119,27 @@ func ResourceIsNotSimilarTo(ctx *FeatureContext, s ScenarioContext) {
 			return nil
 		},
 	)
+}
+
+// getWithoutMetadata returns resource without metadata field.
+func getWithoutMetadata(ctx *FeatureContext, groupVersionKindStr, name string) (*unstructured.Unstructured, error) {
+	groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+	if err != nil {
+		return nil, err
+	}
+
+	namespacedName, err := helpers.NamespacedNameFrom(name)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := ctx.Get(groupVersionKind, namespacedName)
+	if err != nil {
+		return nil, err
+	}
+	delete(obj.Object, "metadata")
+
+	return obj, nil
 }
 
 // ResourceIsEqualTo implements the GoDoc step
@@ -161,36 +152,15 @@ func ResourceIsEqualTo(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' is equal to '(`+RxNamespacedName+`)'$`,
 		func(groupVersionKindStr, lname, rname string) (err error) {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
-			if err != nil {
-				return err
-			}
-			lNamespacedName, err := helpers.NamespacedNameFrom(lname)
-			if err != nil {
-				return err
-			}
-			rNamespacedName, err := helpers.NamespacedNameFrom(rname)
+			lobj, err := getWithoutUniqueFields(ctx, groupVersionKindStr, lname)
 			if err != nil {
 				return err
 			}
 
-			lobj, err := ctx.Get(groupVersionKind, lNamespacedName)
+			robj, err := getWithoutUniqueFields(ctx, groupVersionKindStr, rname)
 			if err != nil {
 				return err
 			}
-			lobj.SetName("")
-			lobj.SetNamespace("")
-			lobj.SetUID("")
-			lobj.SetResourceVersion("")
-
-			robj, err := ctx.Get(groupVersionKind, rNamespacedName)
-			if err != nil {
-				return err
-			}
-			robj.SetName("")
-			robj.SetNamespace("")
-			robj.SetUID("")
-			robj.SetResourceVersion("")
 
 			diff, err := diffObjects(lobj, robj)
 			switch {
@@ -214,44 +184,48 @@ func ResourceIsNotEqualTo(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes resource (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' is not equal to '(`+RxNamespacedName+`)'$`,
 		func(groupVersionKindStr, lname, rname string) (err error) {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
-			if err != nil {
-				return err
-			}
-			lNamespacedName, err := helpers.NamespacedNameFrom(lname)
-			if err != nil {
-				return err
-			}
-			rNamespacedName, err := helpers.NamespacedNameFrom(rname)
+			lobj, err := getWithoutUniqueFields(ctx, groupVersionKindStr, lname)
 			if err != nil {
 				return err
 			}
 
-			lobj, err := ctx.Get(groupVersionKind, lNamespacedName)
+			robj, err := getWithoutUniqueFields(ctx, groupVersionKindStr, rname)
 			if err != nil {
 				return err
 			}
-			lobj.SetName("")
-			lobj.SetNamespace("")
-			lobj.SetUID("")
-			lobj.SetResourceVersion("")
-
-			robj, err := ctx.Get(groupVersionKind, rNamespacedName)
-			if err != nil {
-				return err
-			}
-			robj.SetName("")
-			robj.SetNamespace("")
-			robj.SetUID("")
-			robj.SetResourceVersion("")
 
 			diff := gojsondiff.New().CompareObjects(lobj.Object, robj.Object)
 			if !diff.Modified() {
-				return fmt.Errorf("resources %s '%s' and '%s' are equal", groupVersionKind, lname, rname)
+				return fmt.Errorf("resources %s '%s' and '%s' are equal", groupVersionKindStr, lname, rname)
 			}
 			return nil
 		},
 	)
+}
+
+// getWithoutUniqFields returns resources without unique fields ('metadata.name',
+// 'metadata.namespace', 'metadata.uid' and 'metadata.resourceVersion').
+func getWithoutUniqueFields(ctx *FeatureContext, groupVersionKindStr, name string) (*unstructured.Unstructured, error) {
+	groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+	if err != nil {
+		return nil, err
+	}
+
+	namespacedName, err := helpers.NamespacedNameFrom(name)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := ctx.Get(groupVersionKind, namespacedName)
+	if err != nil {
+		return nil, err
+	}
+	obj.SetName("")
+	obj.SetNamespace("")
+	obj.SetUID("")
+	obj.SetResourceVersion("")
+
+	return obj, nil
 }
 
 // diffObjects return a readable diff if the given objects are different.

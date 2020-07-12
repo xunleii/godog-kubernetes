@@ -1,0 +1,27 @@
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+      types: [opened, synchronize, reopened]
+jobs:
+  sonarcloud:
+    name: Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup Go environment
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.14
+    - run: go test -short -coverprofile=cover.out `go list./..|grep -v vendor/`
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    

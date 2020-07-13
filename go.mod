@@ -1,4 +1,4 @@
-module kubernetes_ctx
+module github.com/xunleii/godog-kubernetes
 
 go 1.14
 

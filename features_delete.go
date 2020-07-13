@@ -13,10 +13,7 @@ func RemoveResource(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(name)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(name)
 
 			_, err = ctx.Delete(groupVersionKind, namespacedName)
 			return err

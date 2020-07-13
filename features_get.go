@@ -22,10 +22,7 @@ func ResourceExists(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(name)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(name)
 
 			_, err = ctx.Get(groupVersionKind, namespacedName)
 			return err
@@ -44,10 +41,7 @@ func ResourceNotExists(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(name)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(name)
 
 			_, err = ctx.Get(groupVersionKind, namespacedName)
 			switch {
@@ -81,10 +75,8 @@ func ResourceIsSimilarTo(ctx *FeatureContext, s ScenarioContext) {
 				return err
 			}
 
-			diff, err := diffObjects(lobj, robj)
+			diff := diffObjects(lobj, robj)
 			switch {
-			case err != nil:
-				return err
 			case diff != "":
 				return fmt.Errorf("resources %s '%s' and '%s' are not similar: %s", groupVersionKindStr, lname, rname, diff)
 			}
@@ -128,10 +120,7 @@ func getWithoutMetadata(ctx *FeatureContext, groupVersionKindStr, name string) (
 		return nil, err
 	}
 
-	namespacedName, err := helpers.NamespacedNameFrom(name)
-	if err != nil {
-		return nil, err
-	}
+	namespacedName, _ := helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {
@@ -162,10 +151,8 @@ func ResourceIsEqualTo(ctx *FeatureContext, s ScenarioContext) {
 				return err
 			}
 
-			diff, err := diffObjects(lobj, robj)
+			diff := diffObjects(lobj, robj)
 			switch {
-			case err != nil:
-				return err
 			case diff != "":
 				return fmt.Errorf("resources %s '%s' and '%s' are not equal: %s", groupVersionKindStr, lname, rname, diff)
 			}
@@ -211,10 +198,7 @@ func getWithoutUniqueFields(ctx *FeatureContext, groupVersionKindStr, name strin
 		return nil, err
 	}
 
-	namespacedName, err := helpers.NamespacedNameFrom(name)
-	if err != nil {
-		return nil, err
-	}
+	namespacedName, _ := helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {
@@ -229,17 +213,14 @@ func getWithoutUniqueFields(ctx *FeatureContext, groupVersionKindStr, name strin
 }
 
 // diffObjects return a readable diff if the given objects are different.
-func diffObjects(lobj, robj *unstructured.Unstructured) (string, error) {
+func diffObjects(lobj, robj *unstructured.Unstructured) string {
 	diff := gojsondiff.New().CompareObjects(lobj.Object, robj.Object)
 	if diff.Modified() {
-		outDiff, err := formatter.
+		outDiff, _ := formatter.
 			NewAsciiFormatter(lobj.Object, formatter.AsciiFormatterConfig{Coloring: false, ShowArrayIndex: true}).
 			Format(diff)
-		if err != nil {
-			return "", err
-		}
 
-		return fmt.Sprintf("\n%s", outDiff), nil
+		return fmt.Sprintf("\n%s", outDiff)
 	}
-	return "", nil
+	return ""
 }

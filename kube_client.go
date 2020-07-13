@@ -98,6 +98,10 @@ func (ctx *FeatureContext) List(
 		return nil, err
 	}
 
+	if !list.IsList() {
+		return nil, nil
+	}
+
 	var objs []*unstructured.Unstructured
 	return objs, list.EachListItem(func(object runtime.Object) error {
 		objs = append(objs, object.(*unstructured.Unstructured))

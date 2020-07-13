@@ -69,9 +69,6 @@ func CountNamespacedResources(ctx *FeatureContext, s ScenarioContext) {
 				}
 
 				items := funk.Map(objs, func(obj *unstructured.Unstructured) string {
-					if obj.GetNamespace() == "" {
-						return obj.GetName()
-					}
 					return obj.GetNamespace() + "/" + obj.GetName()
 				})
 				return fmt.Errorf("%d %s found in namespace '%s' (%s)", len(objs), groupVersionKindStr, namespace, strings.Join(items.([]string), ","))

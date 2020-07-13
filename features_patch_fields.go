@@ -19,10 +19,7 @@ func LabelizeResource(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(resourceName)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
 
 			patch := fmt.Sprintf(`{"metadata":{"labels":{"%s":"%s"}}}`, labelName, labelValue)
 			return ctx.Patch(groupVersionKind, namespacedName, types.MergePatchType, []byte(patch))
@@ -41,10 +38,7 @@ func RemoveResourceLabel(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(resourceName)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
 
 			patch := fmt.Sprintf(`[{"op":"remove","path":"/metadata/labels/%s"}]`, helpers.SanitizeJsonPatch(label))
 			return ctx.Patch(groupVersionKind, namespacedName, types.JSONPatchType, []byte(patch))
@@ -63,10 +57,7 @@ func UpdateResourceLabel(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(resourceName)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
 
 			patch := fmt.Sprintf(`[{"op":"replace","path":"/metadata/labels/%s","value":"%s"}]`, helpers.SanitizeJsonPatch(label), value)
 			return ctx.Patch(groupVersionKind, namespacedName, types.JSONPatchType, []byte(patch))

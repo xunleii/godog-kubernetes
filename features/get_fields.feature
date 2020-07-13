@@ -21,6 +21,7 @@ Feature: Get resource fields
   Scenario: should not find non-existing label or detect invalid label
     Given Kubernetes has v1/Namespace 'kube-system'
     And Kubernetes resource v1/Namespace 'kube-system' doesn't have label 'oops'
+    And Kubernetes resource v1/Namespace 'kube-system' doesn't have label 'oops=error'
     And Kubernetes resource v1/Namespace 'kube-system' doesn't have label 'key=error'
 
   Scenario: should find existing or valid annotation
@@ -31,4 +32,5 @@ Feature: Get resource fields
   Scenario: should not find non-existing label or detect invalid label
     Given Kubernetes has v1/Namespace 'kube-system'
     And Kubernetes resource v1/Namespace 'kube-system' doesn't have annotation 'oops'
+    And Kubernetes resource v1/Namespace 'kube-system' doesn't have annotation 'oops=error'
     And Kubernetes resource v1/Namespace 'kube-system' doesn't have annotation 'key=error'

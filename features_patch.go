@@ -19,10 +19,7 @@ func PatchResourceWith(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(resourceName)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
 
 			patch, err := helpers.YamlToJson(content.Content)
 			if err != nil {

@@ -142,57 +142,78 @@ func TestFeatureContext_OnBeforeScenarioInit(t *testing.T) {
 
 // TestMain allows us to use GoDog tests with the go test framework.
 func TestMain(m *testing.M) {
-	opts := godog.Options{
-		Output: colors.Colored(os.Stdout),
-	}
-
+	opts := godog.Options{Output: colors.Colored(os.Stdout)}
 	godog.BindFlags("godog.", flag.CommandLine, &opts)
 	flag.Parse()
-	opts.Paths = flag.Args()
 
-	status := godog.TestSuite{
-		Name: "kubernetes_ctx",
-		ScenarioInitializer: func(scenarioContext *godog.ScenarioContext) {
-			ctx, _ := kubernetes_ctx.NewFeatureContext(scenarioContext, kubernetes_ctx.WithFakeRuntimeClient())
-			scenarioContext.BeforeScenario(func(sc *godog.Scenario) {
-				// create default namespace
-				_ = ctx.Create(schema.GroupVersionKind{Version: "v1", Kind: "Namespace"}, types.NamespacedName{Name: "default"}, &unstructured.Unstructured{})
-				// create kube-public namespace
-				_ = ctx.Create(schema.GroupVersionKind{Version: "v1", Kind: "Namespace"}, types.NamespacedName{Name: "kube-public"}, &unstructured.Unstructured{})
-				// create kube-system namespace
-				_ = ctx.Create(
-					schema.GroupVersionKind{Version: "v1", Kind: "Namespace"},
-					types.NamespacedName{Name: "kube-system"},
-					&unstructured.Unstructured{
-						Object: map[string]interface{}{
-							"metadata": map[string]interface{}{
-								"annotations": map[string]string{"key": "value"},
-								"labels":      map[string]string{"key": "value"},
-							},
+	// ScenarioInitializer defines how all scenarios will be initialized.
+	// To easily test this package with GoDog, this initializer will create
+	// some Kubernetes resources before running the tests:
+	// - 3 Namespaces (default, kube-public & kube-system)
+	// - 2 Services (default/default & default/Kubernetes)
+	scenarioInitializer := func(scenarioContext *godog.ScenarioContext) {
+		ctx, _ := kubernetes_ctx.NewFeatureContext(scenarioContext, kubernetes_ctx.WithFakeRuntimeClient())
+		scenarioContext.BeforeScenario(func(sc *godog.Scenario) {
+			// create default namespace
+			_ = ctx.Create(schema.GroupVersionKind{Version: "v1", Kind: "Namespace"}, types.NamespacedName{Name: "default"}, &unstructured.Unstructured{})
+			// create kube-public namespace
+			_ = ctx.Create(schema.GroupVersionKind{Version: "v1", Kind: "Namespace"}, types.NamespacedName{Name: "kube-public"}, &unstructured.Unstructured{})
+			// create kube-system namespace
+			_ = ctx.Create(
+				schema.GroupVersionKind{Version: "v1", Kind: "Namespace"},
+				types.NamespacedName{Name: "kube-system"},
+				&unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"metadata": map[string]interface{}{
+							"annotations": map[string]string{"key": "value"},
+							"labels":      map[string]string{"key": "value"},
 						},
 					},
-				)
+				},
+			)
 
-				// create service default/default
-				_ = ctx.Create(schema.GroupVersionKind{Version: "v1", Kind: "Service"}, types.NamespacedName{Namespace: "default", Name: "default"}, &unstructured.Unstructured{})
-				// create service default/Kubernetes
-				_ = ctx.Create(
-					schema.GroupVersionKind{Version: "v1", Kind: "Service"},
-					types.NamespacedName{Namespace: "default", Name: "kubernetes"},
-					&unstructured.Unstructured{
-						Object: map[string]interface{}{
-							"metadata": map[string]interface{}{
-								"annotations": map[string]string{"key": "value"},
-								"labels":      map[string]string{"key": "value"},
-							},
-							"spec": map[string]interface{}{"type": "ClusterIP", "clusterIP": "None"},
+			// create service default/default
+			_ = ctx.Create(schema.GroupVersionKind{Version: "v1", Kind: "Service"}, types.NamespacedName{Namespace: "default", Name: "default"}, &unstructured.Unstructured{})
+			// create service default/Kubernetes
+			_ = ctx.Create(
+				schema.GroupVersionKind{Version: "v1", Kind: "Service"},
+				types.NamespacedName{Namespace: "default", Name: "kubernetes"},
+				&unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"metadata": map[string]interface{}{
+							"annotations": map[string]string{"key": "value"},
+							"labels":      map[string]string{"key": "value"},
 						},
+						"spec": map[string]interface{}{"type": "ClusterIP", "clusterIP": "None"},
 					},
-				)
-			})
-		},
-		Options: &opts,
-	}.Run()
+				},
+			)
+		})
+	}
+
+	// GoDog test suite for features context
+	var status int
+	{
+		overridedOpts := opts
+		overridedOpts.Paths = []string{"features"}
+		status = godog.TestSuite{
+			Name:                "kubernetes_ctx",
+			ScenarioInitializer: scenarioInitializer,
+			Options:             &overridedOpts,
+		}.Run()
+	}
+
+	// GoDog test suite for error management of features context
+	{
+		overridedOpts := opts
+		overridedOpts.Paths = []string{"features_errors"}
+		overridedOpts.StopOnFailure = false
+		_ = godog.TestSuite{
+			Name:                "kubernetes_ctx::errors",
+			ScenarioInitializer: scenarioInitializer,
+			Options:             &overridedOpts,
+		}.Run()
+	}
 
 	if st := m.Run(); st > status {
 		status = st

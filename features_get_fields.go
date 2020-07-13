@@ -79,7 +79,7 @@ func ResourceHasFieldNotEqual(ctx *FeatureContext, s ScenarioContext) {
 			case err != nil:
 				return err
 			case !exists:
-				return fmt.Errorf("field '%s' not found", field)
+				return nil
 			case rval == value:
 				return fmt.Errorf("field '%s' equal to %s", field, value)
 			}
@@ -94,15 +94,16 @@ func getResourceField(ctx *FeatureContext, groupVersionKindStr, name, field stri
 	if err != nil {
 		return "", false, err
 	}
-	namespacedName, err := helpers.NamespacedNameFrom(name)
-	if err != nil {
-		return "", false, err
-	}
+	namespacedName, _ := helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {
 		return "", false, err
 	}
+
+	obj.SetGroupVersionKind(groupVersionKind)
+	obj.SetNamespace(namespacedName.Namespace)
+	obj.SetName(namespacedName.Name)
 
 	xmap := objx.Map(obj.Object)
 	if xmap.Has(field) {
@@ -182,7 +183,7 @@ func ResourceHasLabelNotEqual(ctx *FeatureContext, s ScenarioContext) {
 			case err != nil:
 				return err
 			case !exists:
-				return fmt.Errorf("label '%s' not found", label)
+				return nil
 			case rval == value:
 				return fmt.Errorf("label '%s' equal to %s", label, value)
 			}
@@ -197,10 +198,7 @@ func getResourceLabel(ctx *FeatureContext, groupVersionKindStr, name, label stri
 	if err != nil {
 		return "", false, err
 	}
-	namespacedName, err := helpers.NamespacedNameFrom(name)
-	if err != nil {
-		return "", false, err
-	}
+	namespacedName, _ := helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {
@@ -287,7 +285,7 @@ func ResourceHasAnnotationNotEqual(ctx *FeatureContext, s ScenarioContext) {
 			case err != nil:
 				return err
 			case !exists:
-				return fmt.Errorf("annotation '%s' not found", annotation)
+				return nil
 			case rval == value:
 				return fmt.Errorf("annotation '%s' equal to %s", annotation, value)
 			}
@@ -302,10 +300,7 @@ func getResourceAnnotation(ctx *FeatureContext, groupVersionKindStr, name, annot
 	if err != nil {
 		return "", false, err
 	}
-	namespacedName, err := helpers.NamespacedNameFrom(name)
-	if err != nil {
-		return "", false, err
-	}
+	namespacedName, _ := helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {

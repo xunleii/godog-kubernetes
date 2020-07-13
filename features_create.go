@@ -21,10 +21,7 @@ func CreateSingleResource(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(resourceName)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
 
 			return ctx.Create(groupVersionKind, namespacedName, &unstructured.Unstructured{})
 		},
@@ -43,10 +40,7 @@ func CreateSingleResourceWith(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(resourceName)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
 
 			obj, err := helpers.UnmarshalYamlDocString(yamlObj)
 			if err != nil {
@@ -70,10 +64,7 @@ func CreateSingleResourceFrom(ctx *FeatureContext, s ScenarioContext) {
 			if err != nil {
 				return err
 			}
-			namespacedName, err := helpers.NamespacedNameFrom(resourceName)
-			if err != nil {
-				return err
-			}
+			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
 
 			data, err := ioutil.ReadFile(fileName)
 			if err != nil {

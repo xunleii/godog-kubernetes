@@ -1,6 +1,6 @@
 package kubernetes_ctx
 
-import "kubernetes_ctx/helpers"
+import "github.com/xunleii/godog-kubernetes/helpers"
 
 // RemoveResource implements the GoDoc step
 // - `Kubernetes removes <ApiGroupVersionKind> '<NamespacedName>'`

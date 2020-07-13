@@ -8,7 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"kubernetes_ctx/helpers"
+	"github.com/xunleii/godog-kubernetes/helpers"
 )
 
 // ResourceExists implements the GoDoc step

@@ -8,7 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"kubernetes_ctx/helpers"
+	"github.com/xunleii/godog-kubernetes/helpers"
 )
 
 // CountResources implements the GoDoc step

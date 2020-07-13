@@ -6,7 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"kubernetes_ctx/helpers"
+	"github.com/xunleii/godog-kubernetes/helpers"
 )
 
 // CreateSingleResource implements the GoDoc step

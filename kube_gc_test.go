@@ -9,7 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 
-	"kubernetes_ctx"
+	kubernetes_ctx "github.com/xunleii/godog-kubernetes"
 )
 
 func TestNaiveGC(t *testing.T) {

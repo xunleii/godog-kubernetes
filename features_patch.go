@@ -3,7 +3,7 @@ package kubernetes_ctx
 import (
 	"k8s.io/apimachinery/pkg/types"
 
-	"kubernetes_ctx/helpers"
+	"github.com/xunleii/godog-kubernetes/helpers"
 )
 
 // PatchResourceWith implements the GoDoc step

@@ -5,7 +5,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/types"
 
-	"kubernetes_ctx/helpers"
+	"github.com/xunleii/godog-kubernetes/helpers"
 )
 
 // LabelizeResource implements the GoDoc step

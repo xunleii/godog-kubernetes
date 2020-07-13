@@ -9,7 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 
-	"kubernetes_ctx"
+	kubernetes_ctx "github.com/xunleii/godog-kubernetes"
 )
 
 // initFakeScenario generates a godoc ScenarioContext and a FeatureContext

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/objx"
 
-	"kubernetes_ctx/helpers"
+	"github.com/xunleii/godog-kubernetes/helpers"
 )
 
 // ResourceHasField implements the GoDoc step

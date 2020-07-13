@@ -98,6 +98,10 @@ func (ctx *FeatureContext) List(
 		return nil, err
 	}
 
+	if !list.IsList() {
+		return nil, nil
+	}
+
 	var objs []*unstructured.Unstructured
 	return objs, list.EachListItem(func(object runtime.Object) error {
 		objs = append(objs, object.(*unstructured.Unstructured))
@@ -138,14 +142,12 @@ func (ctx *FeatureContext) Patch(
 	pt types.PatchType,
 	data []byte,
 ) error {
-	obj := unstructured.Unstructured{}
-	obj.SetGroupVersionKind(groupVersionKind)
-	err := ctx.client.Get(ctx.ctx, namespacedName, &obj)
+	obj, err := ctx.get(groupVersionKind, namespacedName)
 	if err != nil {
 		return err
 	}
 
-	return ctx.client.Patch(ctx.ctx, &obj, client.RawPatch(pt, data))
+	return ctx.client.Patch(ctx.ctx, obj, client.RawPatch(pt, data))
 }
 
 // Delete deletes a Kubernetes resource based on the given APIVersion/Kind
@@ -160,10 +162,7 @@ func (ctx *FeatureContext) Delete(
 		return nil, err
 	}
 
-	if ctx.gc != nil {
-		err = ctx.gc(ctx, obj)
-	}
-	return obj, err
+	return obj, ctx.callGC(obj)
 }
 
 // DeleteWithoutGC deletes a Kubernetes resource based on the given

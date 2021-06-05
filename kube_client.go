@@ -20,20 +20,17 @@ func (ctx *FeatureContext) Create(
 	opts ...client.CreateOption,
 ) error {
 	obj.SetGroupVersionKind(groupVersionKind)
-	obj.SetUID(types.UID(uuid.New().String()))
 	obj.SetName(namespacedName.Name)
 	obj.SetNamespace(namespacedName.Namespace)
+	obj.SetUID(types.UID(uuid.New().String()))
 
-	kobj, err := ctx.scheme.New(groupVersionKind)
+	// enforce this object to be a known Kubernetes object
+	obj, err := ctx.enforceRuntimeObjects(obj)
 	if err != nil {
 		return err
 	}
 
-	err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, kobj)
-	if err != nil {
-		return err
-	}
-	return ctx.client.Create(ctx.ctx, kobj, opts...)
+	return ctx.client.Create(ctx.ctx, obj, opts...)
 }
 
 // Get fetches the Kubernetes resource using the given APIVersion/Kind and
@@ -43,34 +40,20 @@ func (ctx *FeatureContext) Get(
 	groupVersionKind schema.GroupVersionKind,
 	namespacedName types.NamespacedName,
 ) (*unstructured.Unstructured, error) {
-	kobj, err := ctx.get(groupVersionKind, namespacedName)
+	obj := &unstructured.Unstructured{}
+	obj.SetGroupVersionKind(groupVersionKind)
+
+	// enforce this object to be a known Kubernetes object
+	_, err := ctx.Scheme().New(obj.GroupVersionKind())
 	if err != nil {
 		return nil, err
 	}
 
-	obj := unstructured.Unstructured{}
-	obj.Object, err = runtime.DefaultUnstructuredConverter.ToUnstructured(kobj)
-	return &obj, err
-}
-
-// Get fetches the Kubernetes resource using the given APIVersion/Kind and
-// the name. It wraps the Get method of the "official" Kubernetes client.Client
-// interface, and returns a runtime.Object.
-func (ctx *FeatureContext) get(
-	groupVersionKind schema.GroupVersionKind,
-	namespacedName types.NamespacedName,
-) (runtime.Object, error) {
-	kobj, err := ctx.scheme.New(groupVersionKind)
+	err = ctx.client.Get(ctx.ctx, namespacedName, obj)
 	if err != nil {
 		return nil, err
 	}
-
-	err = ctx.client.Get(ctx.ctx, namespacedName, kobj)
-	if err != nil {
-		return nil, err
-	}
-
-	return kobj, nil
+	return obj, nil
 }
 
 // List returns all Kubernetes resources based on the given APIVersion/Kind. It
@@ -81,19 +64,16 @@ func (ctx *FeatureContext) List(
 ) ([]*unstructured.Unstructured, error) {
 	// NOTE: can be dangerous but seems working...
 	groupVersionKind.Kind += "List"
+	list := &unstructured.UnstructuredList{}
+	list.SetGroupVersionKind(groupVersionKind)
 
-	kobj, err := ctx.scheme.New(groupVersionKind)
+	// enforce this object to be a known Kubernetes object
+	_, err := ctx.Scheme().New(list.GroupVersionKind())
 	if err != nil {
 		return nil, err
 	}
 
-	err = ctx.client.List(ctx.ctx, kobj, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	list := unstructured.Unstructured{}
-	list.Object, err = runtime.DefaultUnstructuredConverter.ToUnstructured(kobj)
+	err = ctx.client.List(ctx.ctx, list, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -121,12 +101,8 @@ func (ctx *FeatureContext) Update(
 	obj.SetName(namespacedName.Name)
 	obj.SetNamespace(namespacedName.Namespace)
 
-	kobj, err := ctx.scheme.New(obj.GroupVersionKind())
-	if err != nil {
-		return err
-	}
-
-	err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, kobj)
+	// enforce this object to be a known Kubernetes object
+	obj, err := ctx.enforceRuntimeObjects(obj)
 	if err != nil {
 		return err
 	}
@@ -142,7 +118,7 @@ func (ctx *FeatureContext) Patch(
 	pt types.PatchType,
 	data []byte,
 ) error {
-	obj, err := ctx.get(groupVersionKind, namespacedName)
+	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {
 		return err
 	}
@@ -172,16 +148,28 @@ func (ctx *FeatureContext) DeleteWithoutGC(
 	groupVersionKind schema.GroupVersionKind,
 	namespacedName types.NamespacedName,
 ) (*unstructured.Unstructured, error) {
-	kobj, err := ctx.get(groupVersionKind, namespacedName)
+	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {
 		return nil, err
 	}
 
-	obj := unstructured.Unstructured{}
-	obj.Object, err = runtime.DefaultUnstructuredConverter.ToUnstructured(kobj)
+	return obj, ctx.client.Delete(ctx.ctx, obj)
+}
+
+// enforceRuntimeObjects checks if the given unstructured object
+// is known by the context scheme and add the underlying structure
+// to avoid unexpected error during Patch (like not found fields).
+func (ctx *FeatureContext) enforceRuntimeObjects(uobj *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	obj, err := ctx.Scheme().New(uobj.GroupVersionKind())
 	if err != nil {
 		return nil, err
 	}
 
-	return &obj, ctx.client.Delete(ctx.ctx, kobj)
+	err = runtime.DefaultUnstructuredConverter.FromUnstructured(uobj.Object, obj)
+	if err != nil {
+		return nil, err
+	}
+
+	uobj.Object, err = runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
+	return uobj, err
 }

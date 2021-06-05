@@ -35,7 +35,7 @@ func WithClient(scheme Scheme, client client.Client) FeatureContextOptionFnc {
 func WithFakeClient(scheme *runtime.Scheme) FeatureContextOptionFnc {
 	return func(ctx *FeatureContext) {
 		ctx.scheme = scheme
-		ctx.client = fake.NewFakeClientWithScheme(scheme)
+		ctx.client = fake.NewClientBuilder().WithScheme(scheme).Build()
 		if ctx.gc == nil {
 			ctx.gc = NaiveGC
 		}

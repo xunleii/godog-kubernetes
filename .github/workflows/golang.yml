@@ -14,16 +14,18 @@ jobs:
       - uses: actions/checkout@v2
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v1
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         with:
-          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.26
+          version: v1.40
+          only-new-issues: true
 
   features-tests:
     name: Features tests (${{ matrix.go }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ '1.14', '1.13' ]
+        go: [ '1.16', '1.15' ]
     steps:
       - uses: actions/checkout@v2
       - name: Setup Go environment

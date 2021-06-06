@@ -18,7 +18,7 @@ func CountResources(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes has (\d+) (`+RxGroupVersionKind+`)$`,
 		func(n int, groupVersionKindStr string) error {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+			groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 			if err != nil {
 				return err
 			}
@@ -53,7 +53,7 @@ func CountNamespacedResources(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes has (\d+) (`+RxGroupVersionKind+`) in namespace '(`+RxDNSChar+`+)'$`,
 		func(n int, groupVersionKindStr, namespace string) error {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+			groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 			if err != nil {
 				return err
 			}

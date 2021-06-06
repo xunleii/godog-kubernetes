@@ -9,11 +9,11 @@ func RemoveResource(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes removes (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)'$`,
 		func(groupVersionKindStr, name string) error {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+			groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 			if err != nil {
 				return err
 			}
-			namespacedName, _ := helpers.NamespacedNameFrom(name)
+			namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(name)
 
 			_, err = ctx.Delete(groupVersionKind, namespacedName)
 			return err
@@ -27,8 +27,8 @@ func RemoveResource(ctx *FeatureContext, s ScenarioContext) {
 func RemoveMultiResource(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes removes the following resources$`,
-		func(table helpers.ResourceTable) error {
-			resources, err := helpers.UnmarshalResourceTable(table)
+		func(table kubernetes_ctx_helpers.ResourceTable) error {
+			resources, err := kubernetes_ctx_helpers.UnmarshalResourceTable(table)
 			if err != nil {
 				return err
 			}

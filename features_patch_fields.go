@@ -59,6 +59,14 @@ func UpdateResourceLabel(ctx *FeatureContext, s ScenarioContext) {
 			}
 			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
 
+			obj, err := ctx.Get(groupVersionKind, namespacedName)
+			if err != nil {
+				return err
+			}
+			if _, exists := obj.GetLabels()[helpers.SanitizeJsonPatch(label)]; !exists {
+				return fmt.Errorf("label `%s` not found on %s %s", helpers.SanitizeJsonPatch(label), groupVersionKind, namespacedName)
+			}
+
 			patch := fmt.Sprintf(`[{"op":"replace","path":"/metadata/labels/%s","value":"%s"}]`, helpers.SanitizeJsonPatch(label), value)
 			return ctx.Patch(groupVersionKind, namespacedName, types.JSONPatchType, []byte(patch))
 		},
@@ -123,6 +131,14 @@ func UpdateResourceAnnotation(ctx *FeatureContext, s ScenarioContext) {
 			namespacedName, err := helpers.NamespacedNameFrom(resourceName)
 			if err != nil {
 				return err
+			}
+
+			obj, err := ctx.Get(groupVersionKind, namespacedName)
+			if err != nil {
+				return err
+			}
+			if _, exists := obj.GetAnnotations()[helpers.SanitizeJsonPatch(annotation)]; !exists {
+				return fmt.Errorf("annotation `%s` not found on %s %s", helpers.SanitizeJsonPatch(annotation), groupVersionKind, namespacedName)
 			}
 
 			patch := fmt.Sprintf(`[{"op":"replace","path":"/metadata/annotations/%s","value":"%s"}]`, helpers.SanitizeJsonPatch(annotation), value)

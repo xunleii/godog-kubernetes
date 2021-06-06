@@ -101,10 +101,6 @@ func getResourceField(ctx *FeatureContext, groupVersionKindStr, name, field stri
 		return "", false, err
 	}
 
-	obj.SetGroupVersionKind(groupVersionKind)
-	obj.SetNamespace(namespacedName.Namespace)
-	obj.SetName(namespacedName.Name)
-
 	xmap := objx.Map(obj.Object)
 	if xmap.Has(field) {
 		return xmap.Get(field).String(), true, nil

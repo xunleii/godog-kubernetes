@@ -19,3 +19,5 @@ require (
 	k8s.io/client-go v0.21.1
 	sigs.k8s.io/controller-runtime v0.8.3
 )
+
+replace k8s.io/apimachinery => github.com/xunleii/apimachinery v0.21.2-rc.0.0.20210606170021-e2b8c6baf125

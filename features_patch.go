@@ -26,7 +26,7 @@ func PatchResourceWith(ctx *FeatureContext, s ScenarioContext) {
 				return err
 			}
 
-			return ctx.Patch(groupVersionKind, namespacedName, types.StrategicMergePatchType, patch)
+			return ctx.Patch(groupVersionKind, namespacedName, types.MergePatchType, patch)
 		},
 	)
 }

@@ -107,12 +107,49 @@ func TestFeatureContext_Update_ResourceNotFound(t *testing.T) {
 	assert.True(t, errors.IsNotFound(err))
 }
 
-// NOTE: issue on go-client -> if we use unstructured object, it will try to patch the object with `Object` field (is allowed to patch unstructured objects ?)
-func TestFeatureContext_Patch(t *testing.T) {
+// NOTE: because StrategicMerge is currently broken when we use unstructured object;
+//		 the `go-client` try to use the unstructured object, which should failed because
+//		 it only contains `Object` field.
+func TestFeatureContext_Patch_StrategicMergePatch(t *testing.T) {
 	ctx := initFakeScenarioWithNamespaces(t)
 
 	patch := []byte(`{"metadata":{"labels":{"new-label": ""}}}`)
 	err := ctx.Patch(namespaceGVK, namespaceDefault, types.StrategicMergePatchType, patch)
+	// This test should failed when the issue will be fixed
+	require.Error(t, err)
+
+	//require.NoError(t, err)
+	//
+	//obj := &unstructured.Unstructured{
+	//	Object: map[string]interface{}{"apiVersion": "v1", "kind": "Namespace"},
+	//}
+	//
+	//err = ctx.Client().Get(ctx.GoContext(), namespaceDefault, obj)
+	//require.NoError(t, err)
+	//assert.Contains(t, obj.GetLabels(), "new-label")
+}
+
+func TestFeatureContext_Patch_JSONPatch(t *testing.T) {
+	ctx := initFakeScenarioWithNamespaces(t)
+
+	patch := []byte(`[{"op": "add", "path": "/metadata/labels", "value":{}},{"op": "add", "path": "/metadata/labels/new-label", "value":""}]`)
+	err := ctx.Patch(namespaceGVK, namespaceDefault, types.JSONPatchType, patch)
+	require.NoError(t, err)
+
+	obj := &unstructured.Unstructured{
+		Object: map[string]interface{}{"apiVersion": "v1", "kind": "Namespace"},
+	}
+
+	err = ctx.Client().Get(ctx.GoContext(), namespaceDefault, obj)
+	require.NoError(t, err)
+	assert.Contains(t, obj.GetLabels(), "new-label")
+}
+
+func TestFeatureContext_Patch_MergePatch(t *testing.T) {
+	ctx := initFakeScenarioWithNamespaces(t)
+
+	patch := []byte(`{"metadata":{"labels":{"new-label": ""}}}`)
+	err := ctx.Patch(namespaceGVK, namespaceDefault, types.MergePatchType, patch)
 	require.NoError(t, err)
 
 	obj := &unstructured.Unstructured{

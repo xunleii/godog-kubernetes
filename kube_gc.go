@@ -12,7 +12,7 @@ import (
 // owner.
 func NaiveGC(ctx *FeatureContext, owner *unstructured.Unstructured) error {
 	for kind := range scheme.Scheme.AllKnownTypes() {
-		if !strings.HasSuffix(kind.Kind, "List") {
+		if kind.Kind == "List" || !strings.HasSuffix(kind.Kind, "List") {
 			// ignore non List
 			continue
 		}

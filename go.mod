@@ -17,7 +17,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 	k8s.io/apimachinery v0.21.1
 	k8s.io/client-go v0.21.1
-	sigs.k8s.io/controller-runtime v0.8.3
+	sigs.k8s.io/controller-runtime v0.9.0-beta.6
 )
 
 replace k8s.io/apimachinery => github.com/xunleii/apimachinery v0.21.2-rc.0.0.20210606170021-e2b8c6baf125

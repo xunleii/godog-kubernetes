@@ -21,7 +21,7 @@ import (
 
 var (
 	scheme   = runtime.NewScheme()
-	client   = fake.NewFakeClientWithScheme(scheme)
+	client   = fake.NewClientBuilder().WithScheme(scheme).Build()
 	goctx, _ = context.WithCancel(context.TODO())
 	gc       = func(*kubernetes_ctx.FeatureContext, *unstructured.Unstructured) error { return nil }
 )
@@ -165,8 +165,8 @@ func TestMain(m *testing.M) {
 				&unstructured.Unstructured{
 					Object: map[string]interface{}{
 						"metadata": map[string]interface{}{
-							"annotations": map[string]string{"key": "value"},
-							"labels":      map[string]string{"key": "value"},
+							"annotations": map[string]interface{}{"key": "value"},
+							"labels":      map[string]interface{}{"key": "value"},
 						},
 					},
 				},
@@ -181,8 +181,8 @@ func TestMain(m *testing.M) {
 				&unstructured.Unstructured{
 					Object: map[string]interface{}{
 						"metadata": map[string]interface{}{
-							"annotations": map[string]string{"key": "value"},
-							"labels":      map[string]string{"key": "value"},
+							"annotations": map[string]interface{}{"key": "value"},
+							"labels":      map[string]interface{}{"key": "value"},
 						},
 						"spec": map[string]interface{}{"type": "ClusterIP", "clusterIP": "None"},
 					},

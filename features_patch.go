@@ -14,19 +14,19 @@ import (
 func PatchResourceWith(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes patches (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' with$`,
-		func(groupVersionKindStr, resourceName string, content helpers.YamlDocString) error {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+		func(groupVersionKindStr, resourceName string, content kubernetes_ctx_helpers.YamlDocString) error {
+			groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 			if err != nil {
 				return err
 			}
-			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
+			namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(resourceName)
 
-			patch, err := helpers.YamlToJson(content.Content)
+			patch, err := kubernetes_ctx_helpers.YamlToJson(content.Content)
 			if err != nil {
 				return err
 			}
 
-			return ctx.Patch(groupVersionKind, namespacedName, types.StrategicMergePatchType, patch)
+			return ctx.Patch(groupVersionKind, namespacedName, types.MergePatchType, patch)
 		},
 	)
 }

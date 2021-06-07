@@ -1,4 +1,4 @@
-package helpers
+package kubernetes_ctx_helpers
 
 import (
 	"fmt"

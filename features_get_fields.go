@@ -90,20 +90,16 @@ func ResourceHasFieldNotEqual(ctx *FeatureContext, s ScenarioContext) {
 
 // getResourceField returns the resource field value and if it exists.
 func getResourceField(ctx *FeatureContext, groupVersionKindStr, name, field string) (string, bool, error) {
-	groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+	groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 	if err != nil {
 		return "", false, err
 	}
-	namespacedName, _ := helpers.NamespacedNameFrom(name)
+	namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {
 		return "", false, err
 	}
-
-	obj.SetGroupVersionKind(groupVersionKind)
-	obj.SetNamespace(namespacedName.Namespace)
-	obj.SetName(namespacedName.Name)
 
 	xmap := objx.Map(obj.Object)
 	if xmap.Has(field) {
@@ -194,11 +190,11 @@ func ResourceHasLabelNotEqual(ctx *FeatureContext, s ScenarioContext) {
 
 // getResourceLabel returns the resource label value and if it exists.
 func getResourceLabel(ctx *FeatureContext, groupVersionKindStr, name, label string) (string, bool, error) {
-	groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+	groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 	if err != nil {
 		return "", false, err
 	}
-	namespacedName, _ := helpers.NamespacedNameFrom(name)
+	namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {
@@ -296,11 +292,11 @@ func ResourceHasAnnotationNotEqual(ctx *FeatureContext, s ScenarioContext) {
 
 // getResourceAnnotation returns the resource annotation value and if it exists.
 func getResourceAnnotation(ctx *FeatureContext, groupVersionKindStr, name, annotation string) (string, bool, error) {
-	groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+	groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 	if err != nil {
 		return "", false, err
 	}
-	namespacedName, _ := helpers.NamespacedNameFrom(name)
+	namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {

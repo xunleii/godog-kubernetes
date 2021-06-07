@@ -18,11 +18,11 @@ func ResourceExists(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes has (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)'$`,
 		func(groupVersionKindStr, name string) error {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+			groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 			if err != nil {
 				return err
 			}
-			namespacedName, _ := helpers.NamespacedNameFrom(name)
+			namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(name)
 
 			_, err = ctx.Get(groupVersionKind, namespacedName)
 			return err
@@ -37,11 +37,11 @@ func ResourceNotExists(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes doesn't have (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)'$`,
 		func(groupVersionKindStr, name string) error {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+			groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 			if err != nil {
 				return err
 			}
-			namespacedName, _ := helpers.NamespacedNameFrom(name)
+			namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(name)
 
 			_, err = ctx.Get(groupVersionKind, namespacedName)
 			switch {
@@ -115,12 +115,12 @@ func ResourceIsNotSimilarTo(ctx *FeatureContext, s ScenarioContext) {
 
 // getWithoutMetadata returns resource without metadata field.
 func getWithoutMetadata(ctx *FeatureContext, groupVersionKindStr, name string) (*unstructured.Unstructured, error) {
-	groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+	groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 	if err != nil {
 		return nil, err
 	}
 
-	namespacedName, _ := helpers.NamespacedNameFrom(name)
+	namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {
@@ -193,12 +193,12 @@ func ResourceIsNotEqualTo(ctx *FeatureContext, s ScenarioContext) {
 // getWithoutUniqFields returns resources without unique fields ('metadata.name',
 // 'metadata.namespace', 'metadata.uid' and 'metadata.resourceVersion').
 func getWithoutUniqueFields(ctx *FeatureContext, groupVersionKindStr, name string) (*unstructured.Unstructured, error) {
-	groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+	groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 	if err != nil {
 		return nil, err
 	}
 
-	namespacedName, _ := helpers.NamespacedNameFrom(name)
+	namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(name)
 
 	obj, err := ctx.Get(groupVersionKind, namespacedName)
 	if err != nil {

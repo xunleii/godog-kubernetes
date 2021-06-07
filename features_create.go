@@ -17,11 +17,11 @@ func CreateSingleResource(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes (?:must have|creates a new) (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)'$`,
 		func(groupVersionKindStr, resourceName string) error {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+			groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 			if err != nil {
 				return err
 			}
-			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
+			namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(resourceName)
 
 			return ctx.Create(groupVersionKind, namespacedName, &unstructured.Unstructured{})
 		},
@@ -35,14 +35,14 @@ func CreateSingleResource(ctx *FeatureContext, s ScenarioContext) {
 func CreateSingleResourceWith(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes (?:must have|creates a new) (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' with$`,
-		func(groupVersionKindStr, resourceName string, yamlObj helpers.YamlDocString) error {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+		func(groupVersionKindStr, resourceName string, yamlObj kubernetes_ctx_helpers.YamlDocString) error {
+			groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 			if err != nil {
 				return err
 			}
-			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
+			namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(resourceName)
 
-			obj, err := helpers.UnmarshalYamlDocString(yamlObj)
+			obj, err := kubernetes_ctx_helpers.UnmarshalYamlDocString(yamlObj)
 			if err != nil {
 				return err
 			}
@@ -60,11 +60,11 @@ func CreateSingleResourceFrom(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes (?:must have|creates a new) (`+RxGroupVersionKind+`) '(`+RxNamespacedName+`)' from (.+)$`,
 		func(groupVersionKindStr, resourceName, fileName string) error {
-			groupVersionKind, err := helpers.GroupVersionKindFrom(groupVersionKindStr)
+			groupVersionKind, err := kubernetes_ctx_helpers.GroupVersionKindFrom(groupVersionKindStr)
 			if err != nil {
 				return err
 			}
-			namespacedName, _ := helpers.NamespacedNameFrom(resourceName)
+			namespacedName, _ := kubernetes_ctx_helpers.NamespacedNameFrom(resourceName)
 
 			data, err := ioutil.ReadFile(fileName)
 			if err != nil {
@@ -89,8 +89,8 @@ func CreateSingleResourceFrom(ctx *FeatureContext, s ScenarioContext) {
 func CreateMultiResources(ctx *FeatureContext, s ScenarioContext) {
 	s.Step(
 		`^Kubernetes (?:must have|creates) the following resources$`,
-		func(table helpers.ResourceTable) error {
-			resources, err := helpers.UnmarshalResourceTable(table)
+		func(table kubernetes_ctx_helpers.ResourceTable) error {
+			resources, err := kubernetes_ctx_helpers.UnmarshalResourceTable(table)
 			if err != nil {
 				return err
 			}
